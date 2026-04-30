@@ -43,6 +43,11 @@ runs:
       shell: bash
       run: |
         curl -fsSL https://aux4.sh | sh
+        echo "$HOME/.aux4.config/packages/aux4/aux4" >> $GITHUB_PATH
+
+    - name: Install pkger
+      shell: bash
+      run: |
         curl -fsSL https://pkger.aux4.sh | sh
 
     - name: Install system packages
