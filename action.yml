@@ -127,7 +127,7 @@ runs:
         VERSION=$(jq -r '.version' ".aux4")
 
         echo "Packaging ${SCOPE}/${NAME}@${VERSION}"
-        aux4 aux4 pkger build .
+        aux4 aux4 pkger build . --currentPlatform true
 
         PACKAGE_FILE="${SCOPE}_${NAME}_${VERSION}.zip"
         if [ ! -f "$PACKAGE_FILE" ]; then
