@@ -140,7 +140,17 @@ runs:
 
     - name: Run tests
       shell: bash
-      working-directory: ${{ inputs.working_directory }}/${{ inputs.package_directory }}/${{ inputs.test_directory }}
       run: |
-        echo "Running tests..."
+        PACKAGE_AUX4="${{ inputs.working_directory }}/${{ inputs.package_directory }}/.aux4"
+        SCOPE=$(jq -r '.scope' "$PACKAGE_AUX4")
+        NAME=$(jq -r '.name' "$PACKAGE_AUX4")
+
+        TEST_DIR="$HOME/.aux4.config/packages/${SCOPE}/${NAME}/${{ inputs.test_directory }}"
+        if [ ! -d "$TEST_DIR" ]; then
+          echo "::error::Test directory not found at ${TEST_DIR}"
+          exit 1
+        fi
+
+        echo "Running tests from ${TEST_DIR}"
+        cd "$TEST_DIR"
         aux4 test run
