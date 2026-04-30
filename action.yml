@@ -31,6 +31,10 @@ inputs:
     description: 'Space-separated list of aux4 packages to install'
     required: false
     default: ''
+  build_command:
+    description: 'Command to build the package before testing (e.g., aux4 builder linux)'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -91,7 +95,15 @@ runs:
       run: |
         aux4 aux4 pkger install aux4/test
 
-    - name: Build and install package
+    - name: Build package
+      if: ${{ inputs.build_command != '' }}
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        echo "Building: ${{ inputs.build_command }}"
+        ${{ inputs.build_command }}
+
+    - name: Package and install
       shell: bash
       working-directory: ${{ inputs.working_directory }}
       run: |
@@ -107,7 +119,7 @@ runs:
         NAME=$(jq -r '.name' "$PACKAGE_AUX4")
         VERSION=$(jq -r '.version' "$PACKAGE_AUX4")
 
-        echo "Building package ${SCOPE}/${NAME}@${VERSION}"
+        echo "Packaging ${SCOPE}/${NAME}@${VERSION}"
         aux4 aux4 pkger build "$PACKAGE_DIR"
 
         PACKAGE_FILE="${SCOPE}_${NAME}_${VERSION}.zip"
