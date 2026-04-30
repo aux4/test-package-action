@@ -95,6 +95,11 @@ runs:
           aux4 aux4 pkger install "$pkg"
         done
 
+    - name: Install jest
+      shell: bash
+      run: |
+        npm i -g jest
+
     - name: Install aux4 test
       shell: bash
       run: |
