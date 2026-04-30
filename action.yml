@@ -137,14 +137,19 @@ runs:
           i686|i386) ARCH="386" ;;
         esac
 
-        PACKAGE_FILE="${OS}_${ARCH}_${SCOPE}_${NAME}_${VERSION}.zip"
-        if [ ! -f "$PACKAGE_FILE" ]; then
-          echo "::error::Package file not found: ${PACKAGE_FILE}"
+        PLATFORM_FILE="${OS}_${ARCH}_${SCOPE}_${NAME}_${VERSION}.zip"
+        PACKAGE_FILE="${SCOPE}_${NAME}_${VERSION}.zip"
+
+        if [ -f "$PLATFORM_FILE" ]; then
+          echo "Installing platform package from ${PLATFORM_FILE}"
+          aux4 aux4 pkger install --fromFile "$PLATFORM_FILE"
+        elif [ -f "$PACKAGE_FILE" ]; then
+          echo "Installing package from ${PACKAGE_FILE}"
+          aux4 aux4 pkger install --fromFile "$PACKAGE_FILE"
+        else
+          echo "::error::Package file not found: ${PLATFORM_FILE} or ${PACKAGE_FILE}"
           exit 1
         fi
-
-        echo "Installing package from ${PACKAGE_FILE}"
-        aux4 aux4 pkger install --fromFile "$PACKAGE_FILE"
 
     - name: Run tests
       shell: bash
