@@ -115,24 +115,29 @@ runs:
 
     - name: Package and install
       shell: bash
-      working-directory: ${{ inputs.working_directory }}
+      working-directory: ${{ inputs.working_directory }}/${{ inputs.package_directory }}
       run: |
-        PACKAGE_DIR="${{ inputs.package_directory }}"
-        PACKAGE_AUX4="${PACKAGE_DIR}/.aux4"
-
-        if [ ! -f "$PACKAGE_AUX4" ]; then
-          echo "::error::Package metadata not found at ${PACKAGE_AUX4}"
+        if [ ! -f ".aux4" ]; then
+          echo "::error::Package metadata not found at .aux4"
           exit 1
         fi
 
-        SCOPE=$(jq -r '.scope' "$PACKAGE_AUX4")
-        NAME=$(jq -r '.name' "$PACKAGE_AUX4")
-        VERSION=$(jq -r '.version' "$PACKAGE_AUX4")
+        SCOPE=$(jq -r '.scope' ".aux4")
+        NAME=$(jq -r '.name' ".aux4")
+        VERSION=$(jq -r '.version' ".aux4")
 
         echo "Packaging ${SCOPE}/${NAME}@${VERSION}"
-        aux4 aux4 pkger build "$PACKAGE_DIR"
+        aux4 aux4 pkger build .
 
-        PACKAGE_FILE="${SCOPE}_${NAME}_${VERSION}.zip"
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+        case "$ARCH" in
+          x86_64) ARCH="amd64" ;;
+          aarch64|arm64) ARCH="arm64" ;;
+          i686|i386) ARCH="386" ;;
+        esac
+
+        PACKAGE_FILE="${OS}_${ARCH}_${SCOPE}_${NAME}_${VERSION}.zip"
         if [ ! -f "$PACKAGE_FILE" ]; then
           echo "::error::Package file not found: ${PACKAGE_FILE}"
           exit 1
